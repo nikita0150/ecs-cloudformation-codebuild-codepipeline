@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   hello-job:
-    runs-on: codebuild-ecs-cicd-app-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: codebuild-ecs-cicd-app-runner-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
