@@ -1,0 +1,19 @@
+name: Hello CodeBuild Runner
+
+on: [push]
+
+jobs:
+  hello-job:
+    runs-on: codebuild-ecs-cicd-app-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Say hello
+        run: echo "Hello from AWS CodeBuild acting as a GitHub Actions runner!"
+
+      - name: Show environment
+        run: |
+          uname -a
+          whoami
+          pwd
