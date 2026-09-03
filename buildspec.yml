@@ -4,7 +4,7 @@ phases:
 
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo "Logging in to Amazon ECR..."
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - AWS_REGION=$AWS_DEFAULT_REGION
       - ECR_REPOSITORY=ecs-cicd-app
@@ -13,14 +13,14 @@ phases:
 
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building Docker image...
-      - docker build -t $ECR_REPOSITORY:v1 .
-      - docker tag $ECR_REPOSITORY:v1 $ECR_URI:v1
+      - echo "Build started on $(date)"
+      - echo "Building Docker image..."
+      - "docker build -t $ECR_REPOSITORY:v1 ."
+      - "docker tag $ECR_REPOSITORY:v1 $ECR_URI:v1"
 
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $ECR_URI:v1
-      - echo Docker image pushed successfully
-      - echo Image URI: $ECR_URI:v1
+      - echo "Pushing Docker image to ECR..."
+      - "docker push $ECR_URI:v1"
+      - echo "Docker image pushed successfully"
+      - "echo Image URI: $ECR_URI:v1"
