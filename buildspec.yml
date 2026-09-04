@@ -15,12 +15,12 @@ phases:
     commands:
       - echo "Build started on $(date)"
       - echo "Building Docker image..."
-      - "docker build -t $ECR_REPOSITORY:v1 ."
-      - "docker tag $ECR_REPOSITORY:v1 $ECR_URI:v1"
+      - "docker build -t $ECR_REPOSITORY:latest ."
+      - "docker tag $ECR_REPOSITORY:v1 $ECR_URI:latest"
 
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - "docker push $ECR_URI:v1"
+      - "docker push $ECR_URI:latest"
       - echo "Docker image pushed successfully"
-      - "echo Image URI: $ECR_URI:v1"
+      - "echo Image URI: $ECR_URI:latest"
