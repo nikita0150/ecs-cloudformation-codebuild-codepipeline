@@ -1,1 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
 
+Description: Application Load Balancer for ECS production application
+
+Parameters:
+
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the VPC where the ALB will be created
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet::Id
+    Description: First public subnet
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet::Id
+    Description: Second public subnet
+
+  ALBSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security group for the Application Load Balancer
+
+Resources:
+
+  # ---------------------------------------------------------
+  # Application Load Balancer
+  # ---------------------------------------------------------
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: ecs-production-alb
+      Scheme: internet-facing
+      Type: application
+      IpAddressType: ipv4
+
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+
+      SecurityGroups:
+        - !Ref ALBSecurityGroupId
+
+      Tags:
+        - Key: Name
+          Value: ecs-production-alb
+
+
+  # ---------------------------------------------------------
+  # Target Group
+  # ---------------------------------------------------------
+
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: ecs-frontend-tg
+
+      VpcId: !Ref VPCId
+
+      Protocol: HTTP
+      Port: 80
+
+      TargetType: ip
+
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: traffic-port
+      HealthCheckPath: /health
+
+      Matcher:
+        HttpCode: '200'
+
+      Tags:
+        - Key: Name
+          Value: ecs-frontend-tg
+
+
+  # ---------------------------------------------------------
+  # HTTP Listener
+  # ---------------------------------------------------------
+
+  HTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+
+      Port: 80
+      Protocol: HTTP
+
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+
+# ---------------------------------------------------------
+# Outputs
+# ---------------------------------------------------------
+
+Outputs:
+
+  LoadBalancerArn:
+    Description: ARN of the Application Load Balancer
+    Value: !Ref ApplicationLoadBalancer
+
+  LoadBalancerDNSName:
+    Description: DNS name of the Application Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+
+  TargetGroupArn:
+    Description: ARN of the frontend target group
+    Value: !Ref FrontendTargetGroup
+
+  HTTPListenerArn:
+    Description: ARN of the HTTP listener
+    Value: !Ref HTTPListener
