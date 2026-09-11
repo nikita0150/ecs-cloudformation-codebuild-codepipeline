@@ -1,31 +1,27 @@
 from fastapi import FastAPI
 
-app = FastAPI(
-    title="ECS CI/CD Demo",
-    description="Demo application for AWS ECS deployment",
-    version="1.0.0"
-)
+app = FastAPI(title="ECS CI/CD Demo")
 
 
 @app.get("/")
-def home():
+def root():
     return {
-        "message": "Hello from ECS!",
+        "message": "ECS CI/CD Demo",
         "version": "v1"
     }
 
 
 @app.get("/health")
-def health_check():
+def health():
     return {
         "status": "healthy"
     }
 
 
 @app.get("/info")
-def application_info():
+def info():
     return {
         "application": "ECS CI/CD Demo",
-        "environment": "development",
+        "environment": "production",
         "version": "v1"
     }
