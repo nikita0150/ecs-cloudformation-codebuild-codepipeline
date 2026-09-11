@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+
+  pre_build:
+    commands:
+      - 'echo "Build started"'
+      - 'echo "Building backend"'
+      - 'AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)'
+      - 'AWS_REGION=$AWS_DEFAULT_REGION'
+      - 'ECR_REPOSITORY=ecs-backend'
+      - 'ECR_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY'
+      - 'echo "ECR Repository: $ECR_REPOSITORY"'
+      - 'echo "ECR URI: $ECR_URI"'
+      - 'echo "Logging in to Amazon ECR..."'
+      - 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com'
+
+  build:
+    commands:
+      - 'echo "Building Docker image..."'
+      - 'docker build -t "$ECR_REPOSITORY:latest" ./backend'
+      - 'echo "Tagging Docker image..."'
+      - 'docker tag "$ECR_REPOSITORY:latest" "$ECR_URI:latest"'
+
+  post_build:
+    commands:
+      - 'echo "Pushing Docker image to ECR..."'
+      - 'docker push "$ECR_URI:latest"'
+      - 'echo "Backend image pushed successfully"'
+      - 'echo "Image URI: $ECR_URI:latest"'
